@@ -162,6 +162,7 @@ Bucket data:
 * Flags (uint8)
   * 0x01 - Watch mute on or off
   * 0x02 - Phone mute on or off
+  * 0x04 - Large status bar font on or off
 * Auto close seconds (uint16)
   * 0 means disabled
 
