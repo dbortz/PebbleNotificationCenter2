@@ -155,6 +155,9 @@ class WatchSyncerImpl(
             if (preferences[GlobalPreferenceKeys.mutePhone]) {
                flags = flags or 0x02
             }
+            if (preferences[GlobalPreferenceKeys.largeStatusBarFont]) {
+               flags = flags or FLAG_LARGE_STATUS_BAR_FONT
+            }
 
             val autoClose = preferences[GlobalPreferenceKeys.autoCloseSeconds]
 
@@ -173,3 +176,6 @@ class WatchSyncerImpl(
 }
 
 private const val MAX_TITLE_TEXT_LENGTH = 20
+
+// Bucket 1 settings flag for the large status bar font (mute flags are 0x01 / 0x02). See protocol.md.
+private const val FLAG_LARGE_STATUS_BAR_FONT: Byte = 0x04
