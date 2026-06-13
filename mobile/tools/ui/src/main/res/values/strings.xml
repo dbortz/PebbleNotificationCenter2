@@ -17,4 +17,8 @@
     <string name="setting_notify_on_reconnect_description">If phone received any non-muted notifications during watch disconnect,
         it will show them on the watch after it reconnects
     </string>
+    <string name="setting_large_status_bar_font">Large status bar font</string>
+    <string name="setting_large_status_bar_font_description">Use a larger font for the clock in the watch status bar so the
+        time is easier to read. Takes effect the next time a screen is opened on the watch.
+    </string>
 </resources>
