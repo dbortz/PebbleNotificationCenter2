@@ -148,8 +148,16 @@ class NotificationService : NotificationListenerService() {
             return null
          }
 
-         getNotificationChannels(sbn.packageName, Process.myUserHandle()).firstOrNull {
-            it.id == sbn.notification.channelId
+         try {
+            getNotificationChannels(sbn.packageName, Process.myUserHandle()).firstOrNull {
+               it.id == sbn.notification.channelId
+            }
+         } catch (e: SecurityException) {
+            // The system can briefly reject privileged listener calls right after the listener (re)connects
+            // (e.g. after a reboot or an app update), before the binding is fully trusted. Treat the channel as
+            // unavailable instead of letting the exception surface as an error notification.
+            logcat { "getNotificationChannels denied, listener not yet privileged: $e" }
+            null
          }
       } else {
          null
