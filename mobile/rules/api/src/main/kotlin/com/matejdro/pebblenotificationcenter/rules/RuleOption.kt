@@ -41,9 +41,9 @@ object RuleOption {
       emptySet()
    )
 
-   val titleFont = EnumPreferenceKeyWithDefault("font_title", PebbleFont.GOTHIC_24_BOLD)
-   val subtitleFont = EnumPreferenceKeyWithDefault("font_subtitle", PebbleFont.GOTHIC_14_BOLD)
-   val bodyFont = EnumPreferenceKeyWithDefault("font_body", PebbleFont.GOTHIC_14)
+   val titleFont = EnumPreferenceKeyWithDefault("font_title", PebbleFont.GOTHIC_28_BOLD)
+   val subtitleFont = EnumPreferenceKeyWithDefault("font_subtitle", PebbleFont.ROBOTO_21_CONDENSED)
+   val bodyFont = EnumPreferenceKeyWithDefault("font_body", PebbleFont.ROBOTO_21_CONDENSED)
 
    // When enabled, the notification's subtitle (e.g. a group chat's participant list) is dropped before sending to
    // the watch. The "who said what" lives in the body for messaging notifications, so this just removes the noise.

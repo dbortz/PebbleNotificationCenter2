@@ -62,7 +62,7 @@ static void window_load(Window* window)
     text_layer_set_text_alignment(app_name_text, GTextAlignmentLeft);
     text_layer_set_text_color(app_name_text, GColorWhite);
     text_layer_set_background_color(app_name_text, GColorClear);
-    text_layer_set_font(app_name_text, fonts_get_system_font(FONT_KEY_GOTHIC_14));
+    text_layer_set_font(app_name_text, fonts_get_system_font(custom_status_bar_app_name_font_key()));
     text_layer_set_text(app_name_text, "Notify Center");
 
     layer_add_child(window_layer, text_layer_get_layer(main_text));

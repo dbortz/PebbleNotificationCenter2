@@ -7,11 +7,14 @@
 // The status bar grows to fit the clock font. The "large font" mode (toggled from the phone's Tools menu and
 // delivered via bucket 1 flag 0x04) uses GOTHIC_18 instead of GOTHIC_14 so the clock is easier to read.
 #define STATUS_BAR_HEIGHT_SMALL 16
-#define STATUS_BAR_HEIGHT_LARGE 22
+#define STATUS_BAR_HEIGHT_LARGE 30
 #define CLOCK_WIDTH_SMALL 48
-#define CLOCK_WIDTH_LARGE 62
+#define CLOCK_WIDTH_LARGE 86
 #define CLOCK_FONT_SMALL FONT_KEY_GOTHIC_14
-#define CLOCK_FONT_LARGE FONT_KEY_GOTHIC_18
+#define CLOCK_FONT_LARGE FONT_KEY_GOTHIC_24_BOLD
+// The app name (e.g. "Notify Center") matches the clock's size but stays regular weight (not bold) and is narrower.
+#define APP_NAME_FONT_SMALL FONT_KEY_GOTHIC_14
+#define APP_NAME_FONT_LARGE FONT_KEY_GOTHIC_24
 #define ICON_AREA_WIDTH 14
 
 // Emery (and presumably future Core devices with larger displays) have a pretty big corner radius. And since there's
@@ -30,8 +33,8 @@ static int status_bar_right_width(const int clock_width)
 }
 
 // Reads the "large font" preference from bucket 1 (byte 0, flag 0x04). Falls back to the small font when the bucket
-// has not been synced from the phone yet.
-static bool status_bar_large_font_enabled(void)
+// has not been synced from the phone yet. Exposed so other windows (e.g. the status window's app name) can match.
+bool custom_status_bar_large_font_enabled(void)
 {
     uint8_t config[3];
     if (bucket_sync_load_bucket(1, config))
@@ -39,6 +42,12 @@ static bool status_bar_large_font_enabled(void)
         return (config[0] & 0x04) != 0;
     }
     return false;
+}
+
+// The system font key for the status window's app name: matches the clock's size but stays regular weight.
+const char* custom_status_bar_app_name_font_key(void)
+{
+    return custom_status_bar_large_font_enabled() ? APP_NAME_FONT_LARGE : APP_NAME_FONT_SMALL;
 }
 
 static CustomStatusBarLayer* active_layer;
@@ -55,7 +64,7 @@ static void update_data();
 
 CustomStatusBarLayer* custom_status_bar_layer_create(const GRect window_frame)
 {
-    const bool large_font = status_bar_large_font_enabled();
+    const bool large_font = custom_status_bar_large_font_enabled();
     const int status_bar_height = large_font ? STATUS_BAR_HEIGHT_LARGE : STATUS_BAR_HEIGHT_SMALL;
     const int clock_width = large_font ? CLOCK_WIDTH_LARGE : CLOCK_WIDTH_SMALL;
     const char* clock_font = large_font ? CLOCK_FONT_LARGE : CLOCK_FONT_SMALL;
