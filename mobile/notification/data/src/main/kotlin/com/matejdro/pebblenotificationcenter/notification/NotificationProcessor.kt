@@ -81,10 +81,18 @@ class NotificationProcessor(
       )
 
       val regexesToReplace = settings[RuleOption.regexReplacements]
+      val hideSubtitle = settings[RuleOption.hideSubtitle]
+      // A long conversation/group title is merged into the body by the parser, so hiding the subtitle must also
+      // strip that title out of the body (otherwise a group chat still shows the participant list).
+      val bodyWithoutTitle = if (hideSubtitle) {
+         removeConversationTitle(parsedNotification.body, parsedNotification.conversationTitle)
+      } else {
+         parsedNotification.body
+      }
       val regexReplacedParsedNotification = parsedNotification.copy(
          title = replaceRegexes(parsedNotification.title, regexesToReplace),
-         subtitle = replaceRegexes(parsedNotification.subtitle, regexesToReplace),
-         body = replaceRegexes(parsedNotification.body, regexesToReplace),
+         subtitle = if (hideSubtitle) "" else replaceRegexes(parsedNotification.subtitle, regexesToReplace),
+         body = replaceRegexes(bodyWithoutTitle, regexesToReplace),
       )
 
       val initialProcessedNotification = ProcessedNotification(
@@ -114,6 +122,19 @@ class NotificationProcessor(
       historyInserter.insertHistoryEntry(regexReplacedParsedNotification, affectedRules, null, muteReason)
       notifications[bucketId] = processedNotification
       notificationIdsByKeys[parsedNotification.key] = bucketId
+   }
+
+   /**
+    * Removes the conversation/group title from the body. The parser prepends a too-long title to the body as its
+    * own line, so we handle both "title\nactual body" and a body that is only the title.
+    */
+   private fun removeConversationTitle(body: String, conversationTitle: String): String {
+      if (conversationTitle.isBlank()) return body
+      return when {
+         body == conversationTitle -> ""
+         body.startsWith("$conversationTitle\n") -> body.removePrefix("$conversationTitle\n")
+         else -> body
+      }
    }
 
    private fun shouldHide(

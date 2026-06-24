@@ -36,7 +36,7 @@ class NotificationParser(
       val title = appNameProvider.getAppName(sbn.packageName)
 
       val (imageUri, messagingStyleText) = notification.parseMessagingStyle(showMessagingStyleChronologically)
-      val (subtitle, text) = parseSubtitleAndBody(notification, messagingStyleText)
+      val (conversationTitle, subtitle, text) = parseSubtitleAndBody(notification, messagingStyleText)
 
       if (subtitle.isBlank() && text.isNullOrBlank()) {
          return null
@@ -69,6 +69,7 @@ class NotificationParser(
          title = title,
          subtitle = subtitleWithCameraEmoji,
          body = text.orEmpty(),
+         conversationTitle = conversationTitle,
          timestamp = Instant.ofEpochMilli(notification.parseMessagingStyleTimestamp() ?: timestampMillis),
          isSilent = isSilent,
          isFilteredByDoNotDisturb = ranking?.matchesInterruptionFilter() == false,
@@ -89,7 +90,7 @@ class NotificationParser(
    private fun parseSubtitleAndBody(
       notification: Notification,
       messagingStyleText: String?,
-   ): Pair<String, String?> {
+   ): Triple<String, String, String?> {
       val extras = notification.extras
 
       val subtitle = (
@@ -111,8 +112,8 @@ class NotificationParser(
             )
             ?.removeUselessCharacaters()
 
-      val updatedSubtitle: CharSequence
-      val updatedText: CharSequence?
+      val updatedSubtitle: String
+      val updatedText: String?
       if (subtitle.length > MAX_TITLE_LENGTH) {
          updatedSubtitle = ""
          updatedText = if (text != null) "$subtitle\n$text" else subtitle
@@ -120,7 +121,9 @@ class NotificationParser(
          updatedSubtitle = subtitle
          updatedText = text
       }
-      return updatedSubtitle to updatedText
+      // First element is the raw conversation title (kept even when merged into the body above) so callers can
+      // strip it when "hide subtitle" is enabled.
+      return Triple(subtitle, updatedSubtitle, updatedText)
    }
 
    private fun processChannel(notification: Notification, channel: Any?): Pair<String?, Boolean> {
